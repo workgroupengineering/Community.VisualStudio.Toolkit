@@ -1,4 +1,4 @@
-﻿using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Editor;
@@ -23,7 +23,17 @@ namespace Community.VisualStudio.Toolkit
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             WindowFrame frame = new(nativeFrame);
-            IWpfTextView? view = VsShellUtilities.GetTextView(nativeFrame)?.ToIWpfTextView();
+            IWpfTextView? view = null;
+
+            try
+            {
+                view = VsShellUtilities.GetTextView(nativeFrame)?.ToIWpfTextView();
+            }
+            catch (System.InvalidOperationException)
+            {
+                // Text view is still initializing - leave view as null.
+                // This can happen during document restoration when opening a solution.
+            }
             
             WindowFrame = frame;
             TextView = view;
