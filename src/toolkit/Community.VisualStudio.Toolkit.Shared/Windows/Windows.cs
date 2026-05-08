@@ -40,6 +40,23 @@ namespace Community.VisualStudio.Toolkit
             => OutputWindowPane.CreateAsync(name, lazyCreate);
 
         /// <summary>
+        /// Creates a new Output window pane with the given name and a caller-supplied GUID,
+        /// or returns the existing pane if one with that GUID has already been registered.
+        /// The pane can be created now or lazily upon the first write to it.
+        /// </summary>
+        /// <remarks>
+        /// Use this overload when multiple components or extensions need to share a single pane.
+        /// By providing a stable, well-known GUID, every caller will end up writing to the same
+        /// pane instead of each one creating a new pane with the same name.
+        /// </remarks>
+        /// <param name="name">The name (title) of the pane.</param>
+        /// <param name="guid">The stable unique identifier of the pane.</param>
+        /// <param name="lazyCreate">Whether to lazily create the pane upon first write.</param>
+        /// <returns>A new OutputWindowPane.</returns>
+        public Task<OutputWindowPane> CreateOutputWindowPaneAsync(string name, Guid guid, bool lazyCreate = true)
+            => OutputWindowPane.CreateAsync(name, guid, lazyCreate);
+
+        /// <summary>
         /// Gets an existing Visual Studio Output window pane (General, Build, Debug).
         /// If the General pane does not already exist then it will be created, but that is not the case
         /// for Build or Debug, in which case the method returns null if the pane doesn't already exist.

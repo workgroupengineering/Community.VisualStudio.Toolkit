@@ -104,14 +104,30 @@ namespace Community.VisualStudio.Toolkit
         /// <param name="name">The name (title) of the new pane.</param>
         /// <param name="lazyCreate">Whether to lazily create the pane upon first write.</param>
         /// <returns>A new OutputWindowPane.</returns>
-        public static async Task<OutputWindowPane> CreateAsync(string name, bool lazyCreate = true)
+        public static Task<OutputWindowPane> CreateAsync(string name, bool lazyCreate = true)
+            => CreateAsync(name, Guid.NewGuid(), lazyCreate);
+
+        /// <summary>
+        /// Creates a new Output window pane with the given name and a caller-supplied GUID,
+        /// or returns the existing pane if one with that GUID has already been registered.
+        /// </summary>
+        /// <remarks>
+        /// Use this overload when multiple components or extensions need to share a single pane.
+        /// By providing a stable, well-known GUID, every caller will end up writing to the same
+        /// pane instead of each one creating a new pane with the same name.
+        /// </remarks>
+        /// <param name="name">The name (title) of the pane.</param>
+        /// <param name="guid">The stable unique identifier of the pane.</param>
+        /// <param name="lazyCreate">Whether to lazily create the pane upon first write.</param>
+        /// <returns>A new OutputWindowPane.</returns>
+        public static async Task<OutputWindowPane> CreateAsync(string name, Guid guid, bool lazyCreate = true)
         {
             if (string.IsNullOrEmpty(name))
             {
                 throw new ArgumentException(nameof(name));
             }
 
-            OutputWindowPane pane = new(name, Guid.NewGuid());
+            OutputWindowPane pane = new(name, guid);
 
             if (!lazyCreate)
             {

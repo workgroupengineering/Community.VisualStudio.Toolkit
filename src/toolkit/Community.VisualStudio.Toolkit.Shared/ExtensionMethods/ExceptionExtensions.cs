@@ -203,19 +203,17 @@ namespace System
         {
             if (_pane == null)
             {
-                // Try and get the Extensions pane and if it doesn't exist then create it.
-                _pane = await VS.Windows.GetOutputWindowPaneAsync(_extensionsPaneGuid);
-
-                if (_pane == null)
+                try
                 {
-                    try
-                    {
-                        _pane = await VS.Windows.CreateOutputWindowPaneAsync(_paneTitle);
-                    }
-                    catch (Exception ex)
-                    {
-                        Diagnostics.Debug.WriteLine(ex);
-                    }
+                    // Always create the pane using the well-known GUID so that all extensions using
+                    // this toolkit share a single "Extensions" pane instead of each creating their own.
+                    // CreatePane in VS is idempotent for a given GUID, so this returns the existing
+                    // pane if one has already been registered under this GUID.
+                    _pane = await VS.Windows.CreateOutputWindowPaneAsync(_paneTitle, _extensionsPaneGuid);
+                }
+                catch (Exception ex)
+                {
+                    Diagnostics.Debug.WriteLine(ex);
                 }
             }
 
